@@ -63,6 +63,7 @@ import Events from './components/Events/Events';
 import EmployeTask from './components/Admin/EmployeTask';
 import GenrateSalarySlip from './components/Admin/SalarySlip/GenrateSalarySlip';
 import { useEffect } from 'react';
+import SignUpForm from './components/forms/SignUpForm';
 
 const App = () => {
   const { loading } = useAutoLogin();
@@ -120,6 +121,9 @@ const App = () => {
         </GuestRoute>
         <GuestRoute exact path='/login' >
           <Login />
+        </GuestRoute>
+        <GuestRoute exact path='/signup' >
+          <SignUpForm />
         </GuestRoute>
         <GuestRoute exact path='/forgot' >
           <Forgot />

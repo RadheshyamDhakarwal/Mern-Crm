@@ -24,7 +24,8 @@ console.log(CLIENT_URL);
 
 //Cors Option
 const corsOption = {
-    origin:['http://localhost:3001','http://1.1.1.111:3000', CLIENT_URL]
+    origin:['http://localhost:3000','http://1.1.1.111:3000',  CLIENT_URL],
+    // credentials: true 
 }
 
 //Configuration
@@ -36,6 +37,7 @@ app.use(cookieParser());
 // Routes
 app.use('/api/auth',authRoute);
 app.use('/api/admin',auth,authRole(['admin']),adminRoute);
+// app.use('/api/admin', adminRoute);
 app.use('/api/task',auth,authRole(['admin','employee','leader']),taskRoute);
 app.use('/api/employee',auth,authRole(['employee','leader']),employeeRoute);
 app.use('/api/leader',auth,authRole(['leader','admin']),leaderRoute);

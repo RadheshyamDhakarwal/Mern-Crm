@@ -1,8 +1,10 @@
 const router = require('express').Router();
 const authController = require('../controllers/auth-controller');
 const {auth} = require('../middlewares/auth-middleware');
+const authMiddleware = require("../../Crm_Backnd/middlewares/auth-middleware");
 
-router.post('/login',authController.login);                 // Login
+router.post('/login',authController.login);                    // Login
+router.post("/register", authController.register);          // rigster
 router.post('/forgot',authController.forgot);               // Forgot Password
 router.patch('/reset',authController.reset);                // Reset Password
 router.get('/logout',auth,authController.logout);           // Logout

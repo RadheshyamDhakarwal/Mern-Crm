@@ -4,6 +4,7 @@ import { doLogin } from "../../http";
 import { useDispatch } from "react-redux";
 import { setAuth } from '../../store/auth-slice';
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom/cjs/react-router-dom.min";
 
 const LoginForm = () => {
   const dispatch = useDispatch();
@@ -22,75 +23,43 @@ const LoginForm = () => {
     })
   }
 
-  // const onSubmit = async (e) => {
-  //   e.preventDefault();
-  //   const { email, password } = formData;
-
-  //   if (!email || !password) return toast.error('All Fields Required');
-
-  //   const res = await doLogin({ email, password });
-  //   const { success } = res;
-  //   console.log(res, "res")
-  //   const data = res?.data || res;
-
-  //   if (!data) {
-  //     toast.error("No response from server");
-  //     return;
-  //   }
-  //   if (success) {
-  //     // ✅ Save user data in localStorage
-  //     localStorage.setItem("user", JSON.stringify(res.user));
-  //     localStorage.setItem("accessToken", JSON.stringify(res.accessToken));
-  //     localStorage.setItem("refreshToken", JSON.stringify(res.refreshToken));
-
-  //     // ✅ Store in Redux
-  //     dispatch(setAuth(res.user));
-  //     toast.success("Login successful");
-  //     window.location.reload();
-
-  //   } else {
-  //     toast.error(res.message || "Login failed");
-  //   }
-  // };
-
-
   const onSubmit = async (e) => {
-  e.preventDefault();
-  const { email, password } = formData;
+    e.preventDefault();
+    const { email, password } = formData;
 
-  if (!email || !password) {
-    toast.error("All Fields Required");
-    return;
-  }
-
-  try {
-    const res = await doLogin({ email, password });
-    console.log("Login Response:", res);
-    const data = res?.data || res;   // ✅ ensure safe access
-
-    if (!data) {
-      toast.error("No response from server");
+    if (!email || !password) {
+      toast.error("All Fields Required");
       return;
     }
 
-    if (data.success) {
-      // ✅ Save user data in localStorage
-      localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("accessToken", data.accessToken);
-      localStorage.setItem("refreshToken", data.refreshToken);
+    try {
+      const res = await doLogin({ email, password });
+      console.log("Login Response:", res);
+      const data = res?.data || res;   // ✅ ensure safe access
 
-      // ✅ Store in Redux
-      dispatch(setAuth(data.user));
-      toast.success("Login successful");
-      window.location.reload();
-    } else {
-      toast.error(data.message || "Login failed");
+      if (!data) {
+        toast.error("No response from server");
+        return;
+      }
+
+      if (data.success) {
+        // ✅ Save user data in localStorage
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("refreshToken", data.refreshToken);
+
+        // ✅ Store in Redux
+        dispatch(setAuth(data.user));
+        toast.success("Login successful");
+        window.location.reload();
+      } else {
+        toast.error(data.message || "Login failed");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      toast.error("Something went wrong, please try again");
     }
-  } catch (err) {
-    console.error("Login error:", err);
-    toast.error("Something went wrong, please try again");
-  }
-};
+  };
 
   return (
     <div id="app">
@@ -162,6 +131,9 @@ const LoginForm = () => {
                         Login
                       </button>
                     </div>
+                    <p class="text-sm font-light text-gray-500 dark:text-gray-400">
+                     Don’t have an account? <Link to="/signup" class="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up here</Link>
+                    </p>
                   </form>
                 </div>
 

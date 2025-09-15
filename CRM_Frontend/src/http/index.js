@@ -9,12 +9,8 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const accessToken = (
-      localStorage.getItem("accessToken") || "null"
-    );
-    const refreshToken = (
-      localStorage.getItem("refreshToken") || "null"
-    );
+    const accessToken = localStorage.getItem("accessToken") || "null";
+    const refreshToken = localStorage.getItem("refreshToken") || "null";
 
     if (accessToken) {
       config.headers["Authorization"] = `Bearer ${accessToken}`;
@@ -31,28 +27,50 @@ api.interceptors.request.use(
 
 // 'https://api.sevenunique.com/api'
 //Auth
-// export const doLogin = (data) => api.post("/auth/login", data);
+export const doLogin = (data) => api.post("/auth/login", data);
 
-export const doLogin = async (data) => {
-  console.log(data, 'data');
+// export const doLogin = async (data) => {
+//   console.log(data, "data");
 
-  const res = await fetch("http://localhost:5500/api/auth/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(data),
-  });
+//   const res = await fetch("http://localhost:5500/api/auth/login", {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify(data),
+//   });
 
-  // Backend se JSON parse karke direct return karo
-  const responseData = await res.json();
-  console.log(responseData, 'responseData');
+//   // Backend se JSON parse karke direct return karo
+//   const responseData = await res.json();
+//   console.log(responseData, "responseData");
 
-  return responseData;
-};
-
+//   return responseData;
+// };
 
 export const forgotPassword = (data) => api.post("/auth/forgot", data);
 export const resetPassword = (data) => api.patch("/auth/reset", data);
 export const dLogout = () => api.get("/auth/logout");
+
+// export const dLogout = async () => {
+//   try {
+//     const refreshToken = localStorage.getItem("refreshToken"); // or cookies
+//     const res = await api.get("/auth/logout", {
+//       headers: { "x-refresh-token": refreshToken },
+//     });
+
+//     if (res.data.success) {
+//       // Clear local storage
+//       localStorage.removeItem("accessToken");
+//       localStorage.removeItem("refreshToken");
+
+//       // Redirect to login
+//       window.location.href = "/login";
+//     }
+
+//     return res.data;
+//   } catch (err) {
+//     console.error("Logout error:", err.response?.data || err.message);
+//     return { success: false, message: "Logout failed" };
+//   }
+// };
 
 //Admin
 export const getCounts = () => api.get("/admin/counts");
@@ -64,8 +82,30 @@ export const getTeams = () => api.get("/admin/teams");
 
 export const getTeamMembers = (data) => api.get(`/admin/team/${data}/members`);
 export const addUser = (data) => api.post("/admin/user", data);
+// export const addUser = async (data) => {
+//   const token = localStorage.getItem("accessToken");
+//   console.log("Token sending:", token); // ✅ log check
+
+//   return axios.post("http://localhost:5500/api/admin/user", data, {
+//     headers: {
+//       Authorization: `Bearer ${token}`,
+//     },
+//     withCredentials: true, // ✅ agar cookies bhi use karte ho
+//   });
+// };
 export const updateUser = (id, data) => api.patch(`/admin/user/${id}`, data);
-export const addTeam = (data) => api.post("/admin/team", data);
+// export const addTeam = (data) => api.post("http://localhost:5500/api/admin/team", data);
+export const addTeam = (data) => {
+  const token = localStorage.getItem("accessToken"); // wherever you stored it
+  console.log(token, "token");
+  return api.post("http://localhost:5500/api/admin/team", data, {
+    headers: {
+      Authorization: token,
+      "Content-Type": "multipart/form-data",
+    },
+  });
+};
+
 export const updateTeam = (id, data) => api.patch(`/admin/team/${id}`, data);
 export const getEmployee = (data) => api.get(`/admin/employee/${data}`);
 export const getLeader = (data) => api.get(`/admin/leader/${data}`);
@@ -163,6 +203,5 @@ api.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
-
 
 export default api;

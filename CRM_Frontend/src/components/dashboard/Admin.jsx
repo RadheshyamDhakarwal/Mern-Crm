@@ -127,6 +127,7 @@ const Admin = () => {
     api
       .get("task/todayevents?type=birthday") // <-- API endpoint
       .then((res) => {
+        console.log(res.data,"data")
         setBirthdaysToday(res.data); // 👈 make sure 'users' match backend response
       })
       .catch((err) => {
@@ -620,7 +621,7 @@ const Admin = () => {
               </div>
             )}
 
-            <div className="cardborder p-3 mb-3 rounded-4">
+            {/* <div className="cardborder p-3 mb-3 rounded-4">
               {loading ? (
                 <p>Loading...</p>
               ) : birthdaysToday ? (
@@ -650,7 +651,7 @@ const Admin = () => {
                           Has birthday today.
                         </p>
                         <p className="mb-0 employee-desc">{employee.quote}</p>
-                        {/* <p className="mb-0 employee-desc">{employee.dob}</p> */}
+                        <p className="mb-0 employee-desc">{employee.dob}</p>
                       </div>
                     </div>
                   </div>
@@ -674,7 +675,7 @@ const Admin = () => {
                   </h5>
                 </div>
               )}
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

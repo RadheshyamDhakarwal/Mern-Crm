@@ -98,8 +98,9 @@ const AddUser = () => {
       });
 
       const res = await addUser(fd);
-      if (res?.success) {
+      if (res?.data?.success) {
         toast.success(res?.message || "User added successfully");
+        //  toast.success( "User added successfully");
         setShowModal(false);
         reset();
         setImagePreview("/assets/icons/user.png");
@@ -107,6 +108,7 @@ const AddUser = () => {
         toast.error(res.message || "Something went wrong");
       }
     } catch (error) {
+        console.error("Add user error:", error);
       toast.error(error?.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);

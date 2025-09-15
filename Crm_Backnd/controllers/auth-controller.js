@@ -10,6 +10,70 @@ const mongoose = require("mongoose");
 const Cryptr = require('cryptr');
 const cryptr = new Cryptr('myTotallySecretKey');
 class AuthController {
+
+  register = async (req, res, next) => {
+  try {
+    const { name, username, email, password, type, branch } = req.body;
+
+    if (!email || !username || !password || !type) {
+      return next(ErrorHandler.badRequest("Required fields missing"));
+    }
+
+    // check if email already exists
+    const existingUser = await userService.findUser({ email });
+    if (existingUser) {
+      return next(ErrorHandler.badRequest("Email already registered"));
+    }
+
+    // Encrypt password using Cryptr (same as login logic)
+    const encryptedPassword = cryptr.encrypt(password);
+
+    // Create user
+    const newUser = await userService.createUser({
+      name,
+      username,
+      email,
+      password: encryptedPassword,
+      type,
+      branch,
+      status: "active", // default active
+    });
+
+    // create payload for tokens
+    const payload = {
+      _id: newUser._id,
+      email: newUser.email,
+      username: newUser.username,
+      type: newUser.type,
+      branch: newUser.branch,
+    };
+
+    const { accessToken, refreshToken } = tokenService.generateToken(payload);
+    await tokenService.storeRefreshToken(newUser._id, refreshToken);
+
+    res.cookie("accessToken", accessToken, {
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+      httpOnly: true,
+    });
+    res.cookie("refreshToken", refreshToken, {
+      maxAge: 1000 * 60 * 60 * 24 * 30,
+      httpOnly: true,
+    });
+
+    res.json({
+      success: true,
+      message: "User registered successfully",
+      accessToken,
+      refreshToken,
+      user: new UserDto(newUser),
+    });
+  } catch (error) {
+    console.error("Register Error:", error);
+    return next(ErrorHandler.serverError("Failed to register user"));
+  }
+};
+
+
   login = async (req, res, next) => {
     const { email, password } = req.body;
     if (!email || !password) return next(ErrorHandler.badRequest());
@@ -17,6 +81,7 @@ class AuthController {
     if (validator.isEmail(email)) data = { email };
     else data = { username: email };
     const user = await userService.findUser(data);
+    console.log(user,"user")
 
     if (!user)
       return next(ErrorHandler.badRequest("Invalid Email or Username"));
@@ -30,6 +95,7 @@ class AuthController {
       status,
       branch,
     } = user;
+    console.log(type,"type")
     if (status != "active")
       return next(
         ErrorHandler.badRequest(
@@ -47,8 +113,6 @@ class AuthController {
       branch,
     };
     const { accessToken, refreshToken } = tokenService.generateToken(payload);
-    console.log("Access Token", accessToken);
-    console.log("Refresh Token", refreshToken);
     await tokenService.storeRefreshToken(_id, refreshToken);
     res.cookie("accessToken", accessToken, {
       maxAge: 1000 * 60 * 60 * 24 * 30,
@@ -59,7 +123,6 @@ class AuthController {
       httpOnly: true,
     });
 
-    console.log(res);
     res.json({
       success: true,
       message: "Login Successfull",
@@ -139,12 +202,12 @@ class AuthController {
     }
 
     const { _id, email, username, type } = userData;
-    console.log(userData);
+    // console.log(userData);
     const token = await tokenService.findRefreshToken(
       mongoose.Types.ObjectId(_id),
       refreshTokenFromHeader
     );
-    console.log(token);
+    // console.log(token);
     if (!token) {
       console.log("sdfgbd", token);
 
